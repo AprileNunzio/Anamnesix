@@ -57,7 +57,7 @@ def wait_for_server(host: str, port: int, timeout: float = 25.0) -> bool:
 
 app = FastAPI(
     title="Anamnesix API Enterprise",
-    version="1.1.0",
+    version="1.1.2",
     docs_url="/docs",
     redoc_url="/redoc"
 )

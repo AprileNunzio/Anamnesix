@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -28,6 +30,24 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
+      - name: Compute and Increment Release Version
+        id: versioning
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF -like "refs/tags/v*") {
+            $rawTag = $env:GITHUB_REF.Substring(10)
+            $ver = $rawTag.TrimStart('v')
+            python scripts/bump_version.py --set $ver
+            "version=$ver" >> $env:GITHUB_OUTPUT
+            "tag=v$ver" >> $env:GITHUB_OUTPUT
+          } else {
+            $tagVer = python scripts/bump_version.py --next --tag
+            $cleanTag = $tagVer.Trim()
+            $cleanVer = $cleanTag.TrimStart('v')
+            "version=$cleanVer" >> $env:GITHUB_OUTPUT
+            "tag=$cleanTag" >> $env:GITHUB_OUTPUT
+          }
 
       - name: Build standalone executable with PyInstaller
         run: |
@@ -45,10 +65,11 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main'
         with:
-          tag_name: v1.0.0
-          name: "Anamnesix v1.0.0 - Windows Release"
+          tag_name: ${{ steps.versioning.outputs.tag }}
+          name: "Anamnesix ${{ steps.versioning.outputs.tag }} - Windows Release"
           body: |
-            ### Anamnesix v1.0.0 - Cartella Clinica Intelligente per Windows
+            Anamnesix ${{ steps.versioning.outputs.tag }} - Cartella Clinica Intelligente per Windows
+            - Release incrementata automaticamente: `${{ steps.versioning.outputs.tag }}`
             - Installer autonomo completo: `Anamnesix_Setup.exe`
             - Architettura Zero-Knowledge (Argon2id + AES-256-GCM)
             - Gestione multi-profilo familiare con database isolati
