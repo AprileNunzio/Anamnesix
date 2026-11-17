@@ -1,0 +1,30 @@
+<div class="page-view chat-view">
+  <div class="chat-header">
+    <div>
+      <h2 class="section-title">Interrogazione Conversazionale RAG</h2>
+      <p class="section-subtitle">Chiedi in linguaggio naturale qualsiasi informazione sul tuo storico medico. Ogni risposta cita le date esatte dei referti verificati.</p>
+    </div>
+  </div>
+
+  <div class="preset-pills-bar">
+    <button class="pill-btn" onclick="sendPresetPrompt('Come e cambiato il mio colesterolo LDL negli ultimi esami?')">Colesterolo LDL nel tempo</button>
+    <button class="pill-btn" onclick="sendPresetPrompt('Quali esami avevo alterati nel referto piu recente?')">Ultimi esami alterati</button>
+    <button class="pill-btn" onclick="sendPresetPrompt('C\'e una correlazione tra i miei valori di ferro, ferritina ed emoglobina?')">Assetto marziale e anemia</button>
+    <button class="pill-btn" onclick="sendPresetPrompt('Come sono i miei parametri epatici e renali?')">Funzionalita epatica e renale</button>
+  </div>
+
+  <div class="clinical-card chat-box">
+    <div class="chat-messages" id="chat-messages-container">
+      <div class="chat-msg bot-msg">
+        <div class="msg-bubble">
+          Ciao! Sono il tuo assistente medico Anamnesix. Posso rispondere a qualsiasi domanda sui tuoi esami di laboratorio, confrontare trend storici e verificare anomalie.
+        </div>
+      </div>
+    </div>
+
+    <form id="chat-input-form" class="chat-input-bar">
+      <input type="text" id="chat-user-input" class="input-field" placeholder="Scrivi una domanda clinica sul tuo storico..." required autocomplete="off">
+      <button type="submit" id="chat-send-btn" class="btn btn-primary">Invia</button>
+    </form>
+  </div>
+</div>

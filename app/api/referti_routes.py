@@ -1,0 +1,72 @@
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
+from typing import List, Optional
+from app.security.session import session_manager
+from app.database.models import RefertoRevisionPayload
+from app.database.repository import (
+    list_all_referti,
+    get_referto_by_id,
+    delete_referto,
+    confirm_referto_revision
+)
+from app.ingestion.pipeline import ingestion_pipeline
+from app.profiles.profile_manager import profile_manager
+
+router = APIRouter(prefix="/api/referti", tags=["Referti Medici"])
+
+def verify_session():
+    if session_manager.is_locked():
+        raise HTTPException(status_code=401, detail="Sessione bloccata.")
+
+@router.get("", dependencies=[Depends(verify_session)])
+def list_referti():
+    return list_all_referti()
+
+@router.get("/{referto_id}", dependencies=[Depends(verify_session)])
+def get_referto(referto_id: str):
+    ref = get_referto_by_id(referto_id)
+    if not ref:
+        raise HTTPException(status_code=404, detail="Referto non trovato.")
+    return ref
+
+@router.post("/upload", dependencies=[Depends(verify_session)])
+async def upload_document(file: UploadFile = File(...)):
+    content = await file.read()
+    if not content:
+        raise HTTPException(status_code=400, detail="File vuoto.")
+
+    filename = file.filename or "referto_scansionato.pdf"
+    active_profile = profile_manager.get_active_profile_id()
+
+    try:
+        result = await ingestion_pipeline.process_document(
+            file_bytes=content,
+            filename=filename,
+            profile_id=active_profile
+        )
+        return {
+            "status": "success",
+            "data": result
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Errore durante l'elaborazione del documento: {str(e)}")
+
+@router.post("/confirm-revision", dependencies=[Depends(verify_session)])
+def confirm_revision(payload: RefertoRevisionPayload):
+    try:
+        confirm_referto_revision(
+            referto_id=payload.referto_id,
+            data_prelievo=payload.data_prelievo,
+            laboratorio=payload.laboratorio,
+            note=payload.note,
+            analiti=payload.analiti
+        )
+        return {"status": "success", "messaggio": "Referto validato e salvato nel database."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Errore nel salvataggio della revisione: {str(e)}")
+
+@router.delete("/{referto_id}", dependencies=[Depends(verify_session)])
+def remove_referto(referto_id: str):
+    success = delete_referto(referto_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Impossibile eliminare il referto specificato.")
+    return {"status": "success", "messaggio": "Referto eliminato."}

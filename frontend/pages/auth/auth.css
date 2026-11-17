@@ -1,0 +1,108 @@
+.auth-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 30%, #1e293b 0%, #0a0f1d 80%);
+  z-index: 100;
+  padding: 20px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: clamp(380px, 28vw, 650px);
+  background: rgba(17, 24, 39, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-lg);
+  padding: clamp(28px, 2.5vw, 56px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), var(--shadow-glow);
+  backdrop-filter: blur(24px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(20px, 1.8vw, 36px);
+}
+
+.auth-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.auth-logo-icon {
+  font-size: clamp(2.5rem, 3.5vw, 5rem);
+  color: var(--accent-cyan);
+  filter: drop-shadow(0 0 16px rgba(6, 182, 212, 0.5));
+}
+
+.auth-title {
+  font-size: var(--font-2xl);
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  background: linear-gradient(135deg, #38bdf8, #818cf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.auth-subtitle {
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(14px, 1.2vw, 24px);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.form-group-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.form-group-checkbox input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--accent-blue);
+}
+
+.btn-block {
+  width: 100%;
+  padding: clamp(12px, 1vw, 20px);
+}
+
+.auth-footer {
+  text-align: center;
+}
+
+.auth-badge-crypto {
+  font-size: var(--font-xs);
+  color: var(--accent-cyan);
+  background: rgba(6, 182, 212, 0.1);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(6, 182, 212, 0.25);
+}

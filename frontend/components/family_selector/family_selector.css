@@ -1,0 +1,38 @@
+.family-selector-wrapper {
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 0.6vw, 16px);
+  background: var(--bg-tertiary);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-color);
+}
+
+.family-label {
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.family-select {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: var(--font-sm);
+  font-weight: 700;
+  cursor: pointer;
+  outline: none;
+}
+
+.family-select option {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.btn-sm {
+  padding: 2px 8px;
+  font-size: var(--font-xs);
+  border-radius: var(--radius-full);
+}

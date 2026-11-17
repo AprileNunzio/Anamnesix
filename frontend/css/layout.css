@@ -1,0 +1,166 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  display: flex;
+}
+
+#app-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  z-index: 20;
+}
+
+#main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  position: relative;
+  background: radial-gradient(circle at 50% 0%, rgba(2, 132, 199, 0.08) 0%, transparent 60%);
+}
+
+#top-header {
+  height: var(--header-height);
+  padding: 0 clamp(16px, 1.5vw, 40px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.page-view {
+  padding: clamp(20px, 2vw, 48px);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(16px, 1.5vw, 36px);
+  max-width: 3840px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.clinical-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: clamp(16px, 1.5vw, 32px);
+  backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-md);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.clinical-card:hover {
+  border-color: rgba(2, 132, 199, 0.3);
+  box-shadow: var(--shadow-glow);
+}
+
+.grid-cols-4 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(clamp(260px, 20vw, 480px), 1fr));
+  gap: clamp(16px, 1.5vw, 32px);
+}
+
+.grid-cols-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(clamp(450px, 40vw, 1200px), 1fr));
+  gap: clamp(16px, 1.5vw, 32px);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 0.6vw, 14px);
+  padding: clamp(8px, 0.7vw, 16px) clamp(16px, 1.2vw, 28px);
+  font-size: var(--font-sm);
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo));
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(2, 132, 199, 0.45);
+}
+
+.btn-secondary {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--accent-blue);
+}
+
+.btn-danger {
+  background: var(--status-danger);
+  color: #ffffff;
+}
+
+.input-field {
+  width: 100%;
+  padding: clamp(10px, 0.8vw, 18px) clamp(14px, 1vw, 22px);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: var(--font-base);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input-field:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.badge-normal { background: var(--status-normal-bg); color: var(--status-normal); border: 1px solid var(--status-normal); }
+.badge-warning { background: var(--status-warning-bg); color: var(--status-warning); border: 1px solid var(--status-warning); }
+.badge-danger { background: var(--status-danger-bg); color: var(--status-danger); border: 1px solid var(--status-danger); }
+.badge-critical { background: var(--status-critical-bg); color: var(--status-critical); border: 1px solid var(--status-critical); }

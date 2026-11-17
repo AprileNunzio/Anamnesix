@@ -1,0 +1,56 @@
+<div class="page-view human-view">
+  <div class="human-header">
+    <div>
+      <h2 class="section-title">Revisione Clinica Assistita (Human-in-the-Loop)</h2>
+      <p class="section-subtitle">Confronta il documento originale a sinistra con i dati estratti dall'AI a destra. Puoi modificare qualsiasi valore prima di confermare.</p>
+    </div>
+    <div style="display:flex; gap:12px;">
+      <button class="btn btn-secondary" onclick="window.router.navigate('referti')">Annulla</button>
+      <button id="btn-save-confirmed" class="btn btn-primary">✓ Conferma e Salva nel Database</button>
+    </div>
+  </div>
+
+  <div class="grid-cols-2 side-by-side-container">
+    <div class="clinical-card preview-pane">
+      <h3 class="pane-title">Documento Originale</h3>
+      <div id="original-preview-box" class="preview-box">
+        <p style="color:var(--text-muted); text-align:center; padding:40px;">Nessun documento caricato per la revisione.</p>
+      </div>
+    </div>
+
+    <div class="clinical-card edit-pane">
+      <div class="edit-pane-header">
+        <h3 class="pane-title">Dati Clinici Estratti & Normalizzati</h3>
+        <button id="btn-add-analyte-row" class="btn btn-secondary btn-sm">+ Aggiungi Riga</button>
+      </div>
+
+      <div class="meta-inputs-grid">
+        <div class="form-group">
+          <label>Data Prelievo</label>
+          <input type="date" id="rev-data-prelievo" class="input-field">
+        </div>
+        <div class="form-group">
+          <label>Laboratorio</label>
+          <input type="text" id="rev-laboratorio" class="input-field">
+        </div>
+      </div>
+
+      <div class="table-responsive" style="max-height: 550px; overflow-y:auto; margin-top:12px;">
+        <table class="clinical-table edit-table">
+          <thead>
+            <tr>
+              <th>Biomarcatore Standard</th>
+              <th>Valore</th>
+              <th>Unita</th>
+              <th>Min</th>
+              <th>Max</th>
+              <th>Flag</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="rev-analiti-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,31 @@
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-logo-icon">⚕</div>
+      <h1 class="auth-title">ANAMNESIX</h1>
+      <p class="auth-subtitle">Archivio Clinico Familiare Cifrato ad Alta Sicurezza</p>
+    </div>
+
+    <form id="auth-form" class="auth-form">
+      <div class="form-group">
+        <label id="auth-password-label" for="auth-password">Master Password di Sblocco</label>
+        <input type="password" id="auth-password" class="input-field" placeholder="Inserisci la Master Password..." required autocomplete="current-password">
+      </div>
+
+      <div class="form-group-checkbox" id="dpapi-checkbox-group">
+        <input type="checkbox" id="auth-enable-dpapi" checked>
+        <label for="auth-enable-dpapi">Abilita sblocco rapido con Windows DPAPI</label>
+      </div>
+
+      <button type="submit" id="auth-submit-btn" class="btn btn-primary btn-block">Sblocca Archivio</button>
+
+      <button type="button" id="auth-dpapi-btn" class="btn btn-secondary btn-block" style="display: none; margin-top: 10px;">
+        Sblocco Rapido con Credenziali Windows (DPAPI)
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <span class="auth-badge-crypto">Argon2id + AES-256-GCM Zero-Knowledge</span>
+    </div>
+  </div>
+</div>

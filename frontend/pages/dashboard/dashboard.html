@@ -1,0 +1,54 @@
+<div class="page-view dashboard-view">
+  <div class="dashboard-hero clinical-card">
+    <div class="hero-score-wrapper">
+      <div class="score-circle-outer">
+        <div class="score-circle-inner">
+          <span id="dash-health-score" class="score-number">--</span>
+          <span class="score-label">Health Score</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-details">
+      <div class="hero-status-tag" id="dash-health-status">Analisi in corso...</div>
+      <h2 class="hero-title" id="dash-patient-name">Quadro Clinico Generale</h2>
+      <p class="hero-desc" id="dash-patient-meta">Sintesi dello stato di salute basata sulle misurazioni piu recenti.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" onclick="window.router.navigate('referti')">📁 Importa Nuovo Referto</button>
+        <button class="btn btn-secondary" onclick="window.router.navigate('chat_rag')">💬 Chiedi all'Assistente AI</button>
+        <button class="btn btn-secondary" onclick="window.router.navigate('dossier')">🖨 Esporta Dossier PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title-wrap">
+    <h3 class="section-title">Stato Funzionale per Apparati e Sistemi</h3>
+  </div>
+  <div class="grid-cols-4" id="systems-grid"></div>
+
+  <div class="section-title-wrap">
+    <h3 class="section-title">Radar delle Anomalie Cliniche Prioritizzate</h3>
+    <span class="section-subtitle">Ordinato per scostamento percentuale dal range di riferimento e persistenza nel tempo</span>
+  </div>
+  <div class="clinical-card table-responsive">
+    <table class="clinical-table">
+      <thead>
+        <tr>
+          <th>Priorita</th>
+          <th>Biomarcatore</th>
+          <th>Valore Rilevato</th>
+          <th>Intervallo Rif.</th>
+          <th>Scostamento</th>
+          <th>Persistenza</th>
+          <th>Ultimo Prelievo</th>
+          <th>Stato</th>
+          <th>Azione</th>
+        </tr>
+      </thead>
+      <tbody id="anomalies-table-body">
+        <tr>
+          <td colspan="9" style="text-align:center; padding: 24px; color: var(--text-muted);">Nessuna anomalia riscontrata o nessun referto caricato.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
