@@ -108,4 +108,30 @@ CREATE TABLE IF NOT EXISTS configurazione (
     valore TEXT NOT NULL,
     aggiornato_il TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS controlli_fertilita (
+    id TEXT PRIMARY KEY,
+    profile_id TEXT NOT NULL,
+    tipo_controllo TEXT NOT NULL,
+    livello TEXT NOT NULL,
+    data_esecuzione TEXT,
+    stato_controllo TEXT NOT NULL,
+    esito TEXT,
+    note TEXT
+);
+
+CREATE TABLE IF NOT EXISTS imaging_referti (
+    id TEXT PRIMARY KEY,
+    profile_id TEXT NOT NULL,
+    tipologia_esame TEXT NOT NULL,
+    organo_distretto TEXT NOT NULL,
+    data_esame TEXT NOT NULL,
+    file_path TEXT,
+    testo_referto TEXT,
+    analisi_ai TEXT,
+    livello_criticita TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_controlli_profile ON controlli_fertilita(profile_id);
+CREATE INDEX IF NOT EXISTS idx_imaging_profile ON imaging_referti(profile_id);
 """

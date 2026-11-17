@@ -1,0 +1,62 @@
+.fertility-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.fertility-badge-box {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  text-align: right;
+}
+
+.fertility-nav-tabs {
+  display: flex;
+  gap: 10px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+  overflow-x: auto;
+}
+
+.fert-tab-btn {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-sm);
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.fert-tab-btn:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+.fert-tab-btn.active {
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo));
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3);
+}
+
+.fert-tab-content {
+  display: none;
+}
+
+.fert-tab-content.active {
+  display: block;
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

@@ -8,6 +8,7 @@ class PageRouter {
       "human_in_loop": { path: "pages/human_in_loop/human_in_loop", title: "Revisione Clinica Assistita" },
       "trends": { path: "pages/trends/trends", title: "Trend Biomarcatori" },
       "correlations": { path: "pages/correlations/correlations", title: "Correlazioni & Second Opinion" },
+      "fertility": { path: "pages/fertility/fertility", title: "Suite Fertilità & Imaging" },
       "chat_rag": { path: "pages/chat_rag/chat_rag", title: "Chat Clinica Intelligente" },
       "dossier": { path: "pages/dossier/dossier", title: "Esportazione Dossier Medico" },
       "settings": { path: "pages/settings/settings", title: "Configurazione Sistema" }

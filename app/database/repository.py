@@ -261,3 +261,114 @@ def get_config_value(chiave: str) -> Optional[str]:
         return row["valore"] if row else None
     finally:
         conn.close()
+
+def save_controllo_fertilita(profile_id: str, tipo_controllo: str, livello: str, stato_controllo: str, data_esecuzione: Optional[str] = None, esito: Optional[str] = None, note: Optional[str] = None) -> str:
+    controllo_id = str(uuid.uuid4())
+    conn = get_db_connection(profile_id=profile_id)
+    try:
+        with conn:
+            conn.execute(
+                """
+                INSERT INTO controlli_fertilita (id, profile_id, tipo_controllo, livello, data_esecuzione, stato_controllo, esito, note)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (controllo_id, profile_id, tipo_controllo, livello, data_esecuzione, stato_controllo, esito, note)
+            )
+        return controllo_id
+    finally:
+        conn.close()
+
+def list_controlli_fertilita(profile_id: str) -> List[Dict[str, Any]]:
+    conn = get_db_connection(profile_id=profile_id)
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            SELECT * FROM controlli_fertilita
+            WHERE profile_id = ?
+            ORDER BY livello ASC, tipo_controllo ASC
+            """,
+            (profile_id,)
+        )
+        return [dict(r) for r in cur.fetchall()]
+    finally:
+        conn.close()
+
+def update_stato_controllo_fertilita(controllo_id: str, stato_controllo: str, data_esecuzione: Optional[str] = None, esito: Optional[str] = None, profile_id: Optional[str] = None) -> bool:
+    conn = get_db_connection(profile_id=profile_id)
+    try:
+        with conn:
+            cur = conn.cursor()
+            cur.execute(
+                """
+                UPDATE controlli_fertilita
+                SET stato_controllo = ?, data_esecuzione = COALESCE(?, data_esecuzione), esito = COALESCE(?, esito)
+                WHERE id = ?
+                """,
+                (stato_controllo, data_esecuzione, esito, controllo_id)
+            )
+            return cur.rowcount > 0
+    finally:
+        conn.close()
+
+def delete_controllo_fertilita(controllo_id: str, profile_id: Optional[str] = None) -> bool:
+    conn = get_db_connection(profile_id=profile_id)
+    try:
+        with conn:
+            cur = conn.cursor()
+            cur.execute("DELETE FROM controlli_fertilita WHERE id = ?", (controllo_id,))
+            return cur.rowcount > 0
+    finally:
+        conn.close()
+
+def save_imaging_referto(profile_id: str, tipologia_esame: str, organo_distretto: str, data_esame: str, file_path: str, testo_referto: str, analisi_ai: str, livello_criticita: str) -> str:
+    imaging_id = str(uuid.uuid4())
+    conn = get_db_connection(profile_id=profile_id)
+    try:
+        with conn:
+            conn.execute(
+                """
+                INSERT INTO imaging_referti (id, profile_id, tipologia_esame, organo_distretto, data_esame, file_path, testo_referto, analisi_ai, livello_criticita)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (imaging_id, profile_id, tipologia_esame, organo_distretto, data_esame, file_path, testo_referto, analisi_ai, livello_criticita)
+            )
+        return imaging_id
+    finally:
+        conn.close()
+
+def list_imaging_referti(profile_id: str) -> List[Dict[str, Any]]:
+    conn = get_db_connection(profile_id=profile_id)
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            SELECT * FROM imaging_referti
+            WHERE profile_id = ?
+            ORDER BY data_esame DESC
+            """,
+            (profile_id,)
+        )
+        return [dict(r) for r in cur.fetchall()]
+    finally:
+        conn.close()
+
+def get_imaging_referto_by_id(imaging_id: str, profile_id: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    conn = get_db_connection(profile_id=profile_id)
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM imaging_referti WHERE id = ?", (imaging_id,))
+        row = cur.fetchone()
+        return dict(row) if row else None
+    finally:
+        conn.close()
+
+def delete_imaging_referto(imaging_id: str, profile_id: Optional[str] = None) -> bool:
+    conn = get_db_connection(profile_id=profile_id)
+    try:
+        with conn:
+            cur = conn.cursor()
+            cur.execute("DELETE FROM imaging_referti WHERE id = ?", (imaging_id,))
+            return cur.rowcount > 0
+    finally:
+        conn.close()

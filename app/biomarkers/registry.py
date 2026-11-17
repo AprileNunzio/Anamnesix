@@ -15,6 +15,15 @@ from app.biomarkers.marziale.ferritina.algorithm import ferritina_algorithm
 from app.biomarkers.emocromo.emoglobina.algorithm import emoglobina_algorithm
 from app.biomarkers.infiammatorio.pcr.algorithm import pcr_algorithm
 from app.biomarkers.vitamine.vitamina_d.algorithm import vitamina_d_algorithm
+from app.biomarkers.fertilita.donna.amh.algorithm import amh_algorithm
+from app.biomarkers.fertilita.donna.fsh.algorithm import fsh_donna_algorithm
+from app.biomarkers.fertilita.donna.estradiolo.algorithm import estradiolo_algorithm
+from app.biomarkers.fertilita.donna.progesterone.algorithm import progesterone_algorithm
+from app.biomarkers.fertilita.uomo.spermiogramma_concentrazione.algorithm import spermiogramma_concentrazione_algorithm
+from app.biomarkers.fertilita.uomo.spermiogramma_motilita.algorithm import spermiogramma_motilita_algorithm
+from app.biomarkers.fertilita.uomo.spermiogramma_morfologia.algorithm import spermiogramma_morfologia_algorithm
+from app.biomarkers.fertilita.uomo.frammentazione_dna.algorithm import frammentazione_dna_algorithm
+from app.biomarkers.fertilita.uomo.testosterone_totale.algorithm import testosterone_totale_algorithm
 
 ALGORITHM_REGISTRY: Dict[str, BaseBiomarkerAlgorithm] = {
     "Glucosio Basale": glicemia_algorithm,
@@ -31,7 +40,16 @@ ALGORITHM_REGISTRY: Dict[str, BaseBiomarkerAlgorithm] = {
     "Ferritina": ferritina_algorithm,
     "Emoglobina (Hb)": emoglobina_algorithm,
     "Proteina C Reattiva (PCR)": pcr_algorithm,
-    "Vitamina D (25-OH)": vitamina_d_algorithm
+    "Vitamina D (25-OH)": vitamina_d_algorithm,
+    "Ormone Anti-Mulleriano (AMH)": amh_algorithm,
+    "Ormone Follicolo-Stimolante (FSH Basale)": fsh_donna_algorithm,
+    "17-Beta Estradiolo (E2)": estradiolo_algorithm,
+    "Progesterone (Fase Luteale / Giorno 21)": progesterone_algorithm,
+    "Concentrazione Spermatozoi (Spermiogramma WHO 6th)": spermiogramma_concentrazione_algorithm,
+    "Motilita Progressiva Spermatozoi (PR %)": spermiogramma_motilita_algorithm,
+    "Morfologia Tipica Spermatozoi (Kruger %)": spermiogramma_morfologia_algorithm,
+    "Indice di Frammentazione DNA Spermatico (DFI %)": frammentazione_dna_algorithm,
+    "Testosterone Totale": testosterone_totale_algorithm
 }
 
 SYNONYMS_TO_STANDARD: Dict[str, str] = {
@@ -71,7 +89,32 @@ SYNONYMS_TO_STANDARD: Dict[str, str] = {
     "pcr": "Proteina C Reattiva (PCR)",
     "proteina c reattiva": "Proteina C Reattiva (PCR)",
     "vitamina d": "Vitamina D (25-OH)",
-    "25 oh vitamina d": "Vitamina D (25-OH)"
+    "25 oh vitamina d": "Vitamina D (25-OH)",
+    "amh": "Ormone Anti-Mulleriano (AMH)",
+    "ormone anti mulleriano": "Ormone Anti-Mulleriano (AMH)",
+    "ormone antimulleriano": "Ormone Anti-Mulleriano (AMH)",
+    "fsh": "Ormone Follicolo-Stimolante (FSH Basale)",
+    "fsh basale": "Ormone Follicolo-Stimolante (FSH Basale)",
+    "estradiolo": "17-Beta Estradiolo (E2)",
+    "17 beta estradiolo": "17-Beta Estradiolo (E2)",
+    "e2": "17-Beta Estradiolo (E2)",
+    "progesterone": "Progesterone (Fase Luteale / Giorno 21)",
+    "progesterone giorno 21": "Progesterone (Fase Luteale / Giorno 21)",
+    "concentrazione spermatozoi": "Concentrazione Spermatozoi (Spermiogramma WHO 6th)",
+    "numero spermatozoi": "Concentrazione Spermatozoi (Spermiogramma WHO 6th)",
+    "spermatozoi ml": "Concentrazione Spermatozoi (Spermiogramma WHO 6th)",
+    "motilita progressiva": "Motilita Progressiva Spermatozoi (PR %)",
+    "mobilita progressiva": "Motilita Progressiva Spermatozoi (PR %)",
+    "motilita spermatozoi": "Motilita Progressiva Spermatozoi (PR %)",
+    "morfologia tipica": "Morfologia Tipica Spermatozoi (Kruger %)",
+    "forme tipiche": "Morfologia Tipica Spermatozoi (Kruger %)",
+    "forme normali": "Morfologia Tipica Spermatozoi (Kruger %)",
+    "morfologia kruger": "Morfologia Tipica Spermatozoi (Kruger %)",
+    "frammentazione dna": "Indice di Frammentazione DNA Spermatico (DFI %)",
+    "frammentazione dna spermatico": "Indice di Frammentazione DNA Spermatico (DFI %)",
+    "dfi": "Indice di Frammentazione DNA Spermatico (DFI %)",
+    "testosterone": "Testosterone Totale",
+    "testosterone totale": "Testosterone Totale"
 }
 
 class BiomarkerAlgorithmRegistry:

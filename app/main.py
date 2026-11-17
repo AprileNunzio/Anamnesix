@@ -15,6 +15,7 @@ from app.api.settings_routes import router as settings_router
 from app.api.export_routes import router as export_router
 from app.api.updater_routes import router as updater_router
 from app.api.mcp_routes import router as mcp_router
+from app.api.fertility_routes import router as fertility_router
 from app.config.settings import ensure_directories_exist
 
 def find_free_port() -> int:
@@ -46,6 +47,7 @@ app.include_router(settings_router)
 app.include_router(export_router)
 app.include_router(updater_router)
 app.include_router(mcp_router)
+app.include_router(fertility_router)
 
 if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
     frontend_path = Path(sys._MEIPASS) / "frontend"
