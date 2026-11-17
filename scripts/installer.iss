@@ -1,7 +1,7 @@
 [Setup]
 AppId={{9F82A4D1-5C82-4B6A-914B-E0E9B0F1C312}
 AppName=Anamnesix
-AppVersion=1.1.3
+AppVersion=1.1.4
 AppPublisher=Anamnesix Health Technologies
 AppPublisherURL=https://github.com/AprileNunzio/Anamnesix
 AppSupportURL=https://github.com/AprileNunzio/Anamnesix

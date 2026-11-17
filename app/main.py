@@ -57,7 +57,7 @@ def wait_for_server(host: str, port: int, timeout: float = 25.0) -> bool:
 
 app = FastAPI(
     title="Anamnesix API Enterprise",
-    version="1.1.3",
+    version="1.1.4",
     docs_url="/docs",
     redoc_url="/redoc"
 )
@@ -87,6 +87,12 @@ app.include_router(job_router)
 @app.on_event("startup")
 def startup_event():
     ensure_directories_exist()
+    try:
+        from app.database.connection import init_database
+        init_database()
+    except Exception as err:
+        log_file = BASE_DIR / "startup_db_error.log"
+        log_file.write_text(str(err), encoding="utf-8")
     try:
         biomarker_auto_scanner.scan_and_register_all()
     except Exception as err:
