@@ -73,23 +73,21 @@ class AIRouter:
         except Exception as err:
             self.last_config_error = str(err)
 
-    async def resolve_effective_ollama_vision_model(self) -> str:
+    async def find_installed_vision_model(self) -> Optional[str]:
         models = await ollama_provider.list_models()
         if not models:
-            return self.ollama_vision_model
+            return None
         names = [m.get("name", "") for m in models]
         if self.ollama_vision_model in names:
             return self.ollama_vision_model
-        target_root = self.ollama_vision_model.split(":")[0].lower()
-        for n in names:
-            if target_root in n.lower():
-                return n
         for m in models:
             if m.get("is_vision"):
-                return m.get("name", "")
-        if self.ollama_model in names:
-            return self.ollama_model
-        return names[0] if names else self.ollama_vision_model
+                return m.get("name")
+        for n in names:
+            lower = n.lower()
+            if "vision" in lower or "llava" in lower or "minicpm" in lower or "vl" in lower:
+                return n
+        return None
 
     async def extract_clinical_data(
         self,
@@ -109,27 +107,41 @@ class AIRouter:
                 model=self.gemini_model,
                 prompt=prompt,
                 system_instruction=CLINICAL_EXTRACTION_SYSTEM_PROMPT,
-                image_bytes=image_bytes,
+                image_bytes=image_bytes if not text_to_process else None,
                 mime_type=mime_type,
                 format_json=True
             )
         else:
-            if image_bytes and mime_type:
-                import base64
-                b64 = base64.b64encode(image_bytes).decode("utf-8")
-                try:
-                    eff_vision = await self.resolve_effective_ollama_vision_model()
+            has_text = bool(text_to_process and len(text_to_process.strip()) > 15)
+
+            if has_text:
+                messages = [
+                    {"role": "system", "content": CLINICAL_EXTRACTION_SYSTEM_PROMPT},
+                    {"role": "user", "content": f"Referto:\n{text_to_process}"}
+                ]
+                raw_response = await ollama_provider.chat(
+                    model=self.ollama_model,
+                    messages=messages,
+                    format_json=True
+                )
+            elif image_bytes and mime_type:
+                vision_model = await self.find_installed_vision_model()
+                if vision_model:
+                    import base64
+                    b64 = base64.b64encode(image_bytes).decode("utf-8")
                     raw_response = await ollama_provider.generate_with_image(
-                        model=eff_vision,
+                        model=vision_model,
                         prompt="Estrai tutti gli analiti clinici da questa immagine in formato JSON strutturato.",
                         image_base64=b64,
                         system_prompt=CLINICAL_EXTRACTION_SYSTEM_PROMPT
                     )
-                except Exception as vision_err:
-                    if text_to_process and len(text_to_process.strip()) > 20:
+                else:
+                    from app.ingestion.ocr_engine import ocr_engine
+                    ocr_text = ocr_engine.extract_text_from_bytes(image_bytes)
+                    if ocr_text and len(ocr_text.strip()) > 10:
                         messages = [
                             {"role": "system", "content": CLINICAL_EXTRACTION_SYSTEM_PROMPT},
-                            {"role": "user", "content": f"Referto:\n{text_to_process}"}
+                            {"role": "user", "content": f"Referto:\n{ocr_text}"}
                         ]
                         raw_response = await ollama_provider.chat(
                             model=self.ollama_model,
@@ -140,19 +152,11 @@ class AIRouter:
                         models = await ollama_provider.list_models()
                         names = [m.get("name", "") for m in models]
                         raise RuntimeError(
-                            f"Errore Vision Ollama ({str(vision_err)}). Modelli installati rilevati: {names}. "
-                            "Configura un modello Vision valido in Impostazioni oppure scarica un modello visivo (es. 'ollama pull llama3.2-vision' o 'ollama pull llava')."
+                            f"Impossibile leggere il documento visivo. Nessun modello Vision rilevato in Ollama (modelli disponibili: {names}). "
+                            f"Installa un modello compatibile come 'ollama pull llama3.2-vision' oppure imposta Gemini in Impostazioni."
                         )
             else:
-                messages = [
-                    {"role": "system", "content": CLINICAL_EXTRACTION_SYSTEM_PROMPT},
-                    {"role": "user", "content": f"Referto:\n{text_to_process}"}
-                ]
-                raw_response = await ollama_provider.chat(
-                    model=self.ollama_model,
-                    messages=messages,
-                    format_json=True
-                )
+                raise RuntimeError("Nessun testo o immagine estratta dal documento caricato.")
 
         cleaned = raw_response.strip()
         if cleaned.startswith("```json"):

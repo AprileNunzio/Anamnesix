@@ -174,19 +174,23 @@ window.init_settings_page = async function() {
 
   applyUpdateBtn.onclick = async () => {
     applyUpdateBtn.disabled = true;
-    applyUpdateBtn.textContent = "Applicazione e ricompilazione in corso...";
+    applyUpdateBtn.textContent = "Applicazione e riavvio software in corso...";
 
     try {
       await window.api.post("/api/updater/apply", {});
-      window.showToast("Aggiornamento applicato con successo! Ricaricamento interfaccia in corso...", "success");
-      resultMsgEl.innerHTML = `<span style="color:var(--status-normal);">Aggiornato all'ultimo commit. Riavvio immediato...</span>`;
-      setTimeout(() => {
-        window.location.reload(true);
-      }, 1200);
+      window.showToast("Aggiornamento applicato con successo! Riavvio automatico in corso...", "success");
+      resultMsgEl.innerHTML = `<span style="color:var(--status-normal);">Aggiornamento completato. Riavvio dell'applicazione in corso...</span>`;
+      setTimeout(async () => {
+        try {
+          await window.api.post("/api/updater/restart", {});
+        } catch (e) {
+          window.location.reload(true);
+        }
+      }, 1000);
     } catch (err) {
       window.showToast(err.message, "error");
       applyUpdateBtn.disabled = false;
-      applyUpdateBtn.textContent = "⬇ Applica Aggiornamento & Ricarica";
+      applyUpdateBtn.textContent = "⬇ Applica Aggiornamento & Riavvia";
     }
   };
 };

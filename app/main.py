@@ -1,6 +1,8 @@
+import os
 import sys
 import socket
 import threading
+import time
 import uvicorn
 from pathlib import Path
 from fastapi import FastAPI
@@ -19,13 +21,31 @@ from app.api.fertility_routes import router as fertility_router
 from app.api.body_composition_routes import router as body_composition_router
 from app.api.health_metrics_routes import router as health_metrics_router
 from app.api.job_routes import router as job_router
-from app.config.settings import ensure_directories_exist
+from app.config.settings import ensure_directories_exist, BASE_DIR
 from app.biomarkers.scanner import biomarker_auto_scanner
 
-def find_free_port() -> int:
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind(("127.0.0.1", 0))
-        return s.getsockname()[1]
+def find_free_port(start_port: int = 24680) -> int:
+    for p in range(start_port, start_port + 100):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            s.bind(("127.0.0.1", p))
+            s.close()
+            return p
+        except OSError:
+            s.close()
+            continue
+    return 24680
+
+def wait_for_server(host: str, port: int, timeout: float = 25.0) -> bool:
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        try:
+            with socket.create_connection((host, port), timeout=0.2):
+                return True
+        except OSError:
+            time.sleep(0.1)
+    return False
 
 app = FastAPI(
     title="Anamnesix API Enterprise",
@@ -59,9 +79,16 @@ app.include_router(job_router)
 @app.on_event("startup")
 def startup_event():
     ensure_directories_exist()
-    biomarker_auto_scanner.scan_and_register_all()
+    try:
+        biomarker_auto_scanner.scan_and_register_all()
+    except Exception as err:
+        log_file = BASE_DIR / "startup_error.log"
+        log_file.write_text(str(err), encoding="utf-8")
 
-if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+user_docs_frontend = BASE_DIR / "frontend"
+if user_docs_frontend.exists() and (user_docs_frontend / "index.html").exists():
+    frontend_path = user_docs_frontend
+elif getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
     frontend_path = Path(sys._MEIPASS) / "frontend"
 else:
     frontend_path = Path(__file__).resolve().parent.parent / "frontend"
@@ -69,13 +96,30 @@ else:
 if frontend_path.exists():
     app.mount("/", StaticFiles(directory=str(frontend_path), html=True), name="frontend")
 
+server_error_log = []
+
 def start_backend_server(host: str, port: int) -> None:
     ensure_directories_exist()
-    uvicorn.run(app, host=host, port=port, log_level="warning")
+    try:
+        config = uvicorn.Config(
+            app,
+            host=host,
+            port=port,
+            log_level="warning",
+            loop="asyncio"
+        )
+        server = uvicorn.Server(config)
+        server.run()
+    except Exception as e:
+        import traceback
+        err_msg = traceback.format_exc()
+        server_error_log.append(err_msg)
+        crash_file = BASE_DIR / "server_crash.txt"
+        crash_file.write_text(err_msg, encoding="utf-8")
 
 def launch_desktop() -> None:
-    port = find_free_port()
     host = "127.0.0.1"
+    port = find_free_port()
 
     server_thread = threading.Thread(
         target=start_backend_server,
@@ -84,7 +128,14 @@ def launch_desktop() -> None:
     )
     server_thread.start()
 
+    is_ready = wait_for_server(host, port, timeout=25.0)
+
     url = f"http://{host}:{port}/index.html"
+
+    if not is_ready:
+        err_detail = server_error_log[0] if server_error_log else "Timeout attesa binding server locale."
+        crash_file = BASE_DIR / "connection_error.txt"
+        crash_file.write_text(err_detail, encoding="utf-8")
 
     try:
         import webview

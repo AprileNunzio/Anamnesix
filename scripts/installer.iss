@@ -1,7 +1,7 @@
 [Setup]
 AppId={{9F82A4D1-5C82-4B6A-914B-E0E9B0F1C312}
 AppName=Anamnesix
-AppVersion=1.0.0
+AppVersion=1.1.0
 AppPublisher=Anamnesix Health Technologies
 AppPublisherURL=https://github.com/AprileNunzio/Anamnesix
 AppSupportURL=https://github.com/AprileNunzio/Anamnesix
@@ -15,6 +15,8 @@ SolidCompression=yes
 WizardStyle=modern
 ArchitecturesInstallIn64BitMode=x64compatible
 PrivilegesRequired=lowest
+CloseApplications=yes
+RestartApplications=yes
 
 [Languages]
 Name: "italian"; MessagesFile: "compiler:Languages\Italian.isl"
@@ -24,6 +26,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "..\dist\Anamnesix.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\frontend\*"; DestDir: "{userdocs}\Anamnesix\frontend"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{autoprograms}\Anamnesix"; Filename: "{app}\Anamnesix.exe"

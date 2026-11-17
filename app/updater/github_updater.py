@@ -3,10 +3,11 @@ import sys
 import json
 import io
 import zipfile
+import subprocess
 import httpx
 from pathlib import Path
 from typing import Dict, Any, Optional
-from app.config.settings import CONFIG_DIR, GITHUB_REPO, ensure_directories_exist
+from app.config.settings import CONFIG_DIR, BASE_DIR, GITHUB_REPO, ensure_directories_exist
 
 VERSION_FILE_PATH = CONFIG_DIR / "version.json"
 
@@ -15,6 +16,7 @@ class GitHubAutoUpdater:
         self.repo = repo
         self.api_url = f"https://api.github.com/repos/{self.repo}/commits/main"
         self.archive_url = f"https://api.github.com/repos/{self.repo}/zipball/main"
+        self.release_url = f"https://api.github.com/repos/{self.repo}/releases/latest"
 
     def get_local_commit(self) -> Dict[str, Any]:
         ensure_directories_exist()
@@ -62,7 +64,10 @@ class GitHubAutoUpdater:
 
     async def apply_update(self, target_dir: Optional[Path] = None) -> bool:
         if target_dir is None:
-            target_dir = Path(__file__).resolve().parent.parent.parent
+            if getattr(sys, "frozen", False):
+                target_dir = BASE_DIR / "app_runtime"
+            else:
+                target_dir = Path(__file__).resolve().parent.parent.parent
 
         headers = {"User-Agent": "Anamnesix-Desktop-Updater"}
         check = await self.check_for_updates()
@@ -74,6 +79,9 @@ class GitHubAutoUpdater:
                 res = await client.get(self.archive_url, headers=headers, follow_redirects=True)
                 if res.status_code != 200:
                     return False
+
+                user_frontend_dir = BASE_DIR / "frontend"
+                user_frontend_dir.mkdir(parents=True, exist_ok=True)
 
                 zip_buffer = io.BytesIO(res.content)
                 with zipfile.ZipFile(zip_buffer) as zf:
@@ -88,6 +96,12 @@ class GitHubAutoUpdater:
                         dest_file.parent.mkdir(parents=True, exist_ok=True)
                         dest_file.write_bytes(zf.read(member))
 
+                        if rel_path.startswith("frontend/"):
+                            f_sub = rel_path[len("frontend/"):]
+                            f_dest = user_frontend_dir / f_sub
+                            f_dest.parent.mkdir(parents=True, exist_ok=True)
+                            f_dest.write_bytes(zf.read(member))
+
                 self.save_local_commit(
                     sha=check.get("remote_sha", ""),
                     date=check.get("date", ""),
@@ -96,5 +110,23 @@ class GitHubAutoUpdater:
                 return True
         except Exception:
             return False
+
+    def restart_application(self) -> None:
+        if sys.platform == "win32":
+            bat_path = BASE_DIR / "restart.bat"
+            exe_path = sys.executable
+            bat_content = f"""@echo off
+timeout /t 2 /nobreak >nul
+start "" "{exe_path}"
+del "%~f0"
+exit
+"""
+            bat_path.write_text(bat_content, encoding="utf-8")
+            creation_flags = 0x08000000 | 0x00000200
+            subprocess.Popen(["cmd.exe", "/c", str(bat_path)], creationflags=creation_flags, close_fds=True)
+            os._exit(0)
+        else:
+            subprocess.Popen([sys.executable] + sys.argv, close_fds=True)
+            os._exit(0)
 
 github_updater = GitHubAutoUpdater()
