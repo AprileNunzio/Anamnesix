@@ -1,0 +1,67 @@
+name: Build Windows Installer Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build standalone executable with PyInstaller
+        run: |
+          python scripts/build_windows.py
+
+      - name: Install Inno Setup
+        run: |
+          choco install innosetup -y
+
+      - name: Build Windows Setup Installer
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" scripts/installer.iss
+
+      - name: Create or Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main'
+        with:
+          tag_name: v1.0.0
+          name: "Anamnesix v1.0.0 - Windows Release"
+          body: |
+            ### Anamnesix v1.0.0 - Cartella Clinica Intelligente per Windows
+            - Installer autonomo completo: `Anamnesix_Setup.exe`
+            - Architettura Zero-Knowledge (Argon2id + AES-256-GCM)
+            - Gestione multi-profilo familiare con database isolati
+            - Pipeline OCR ultraavanzata con pre-processing OpenCV
+            - Router AI ibrido (Ollama locale offline + Gemini API cloud con PII Scrubbing)
+            - Analisi integrata: Health Score, Radar anomalie, Trend temporali, Correlazioni cliniche
+            - Interrogazione conversazionale RAG con citazioni verificate
+            - Server MCP integrato (/api/mcp/rpc)
+            - Auto-aggiornamento continuo tramite commit GitHub
+          draft: false
+          prerelease: false
+          files: |
+            Output/Anamnesix_Setup.exe
+            dist/Anamnesix.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

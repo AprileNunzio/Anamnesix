@@ -9,6 +9,7 @@ AppUpdatesURL=https://github.com/AprileNunzio/Anamnesix
 DefaultDirName={autopf}\Anamnesix
 DisableProgramGroupPage=yes
 OutputBaseFilename=Anamnesix_Setup
+OutputDir=..\Output
 Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
