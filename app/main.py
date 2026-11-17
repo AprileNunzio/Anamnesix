@@ -1,5 +1,13 @@
 import os
 import sys
+
+if sys.stdout is None:
+    sys.stdout = open(os.devnull, "w", encoding="utf-8")
+if sys.stderr is None:
+    sys.stderr = open(os.devnull, "w", encoding="utf-8")
+if sys.stdin is None:
+    sys.stdin = open(os.devnull, "r", encoding="utf-8")
+
 import socket
 import threading
 import time
@@ -105,7 +113,9 @@ def start_backend_server(host: str, port: int) -> None:
             app,
             host=host,
             port=port,
-            log_level="warning",
+            log_level="critical",
+            log_config=None,
+            access_log=False,
             loop="asyncio"
         )
         server = uvicorn.Server(config)
@@ -128,29 +138,61 @@ def launch_desktop() -> None:
     )
     server_thread.start()
 
-    is_ready = wait_for_server(host, port, timeout=25.0)
-
-    url = f"http://{host}:{port}/index.html"
-
-    if not is_ready:
-        err_detail = server_error_log[0] if server_error_log else "Timeout attesa binding server locale."
-        crash_file = BASE_DIR / "connection_error.txt"
-        crash_file.write_text(err_detail, encoding="utf-8")
+    is_ready = wait_for_server(host, port, timeout=30.0)
 
     try:
         import webview
-        webview.create_window(
-            title="Anamnesix Enterprise - Cartella Clinica Intelligente",
-            url=url,
-            width=1440,
-            height=920,
-            min_size=(1024, 700),
-            text_select=True
-        )
+        if is_ready:
+            webview.create_window(
+                title="Anamnesix Enterprise - Cartella Clinica Intelligente",
+                url=f"http://{host}:{port}/index.html",
+                width=1440,
+                height=920,
+                min_size=(1024, 700),
+                text_select=True
+            )
+        else:
+            err_detail = server_error_log[0] if server_error_log else "Timeout di connessione: il server ASGI locale non ha risposto entro 30 secondi sulla porta specificata."
+            crash_file = BASE_DIR / "connection_error.txt"
+            crash_file.write_text(err_detail, encoding="utf-8")
+            error_html = f"""<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Anamnesix Enterprise - Diagnostica Avvio</title>
+<style>
+body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; color: #0f172a; padding: 40px; margin: 0; }}
+.card {{ background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 32px; max-width: 820px; margin: 0 auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }}
+h2 {{ color: #dc2626; margin-top: 0; font-size: 22px; }}
+p {{ font-size: 14px; color: #475569; line-height: 1.6; }}
+pre {{ background: #0f172a; color: #f8fafc; padding: 18px; border-radius: 6px; font-size: 12px; overflow-x: auto; white-space: pre-wrap; }}
+.btn {{ background: #0284c7; color: #ffffff; border: none; padding: 10px 24px; border-radius: 6px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }}
+.btn:hover {{ background: #0369a1; }}
+</style>
+</head>
+<body>
+<div class="card">
+<h2>Anamnesix Enterprise - Inizializzazione Server Locale</h2>
+<p>Il backend clinico locale su <strong>{host}:{port}</strong> non ha completato l'avvio entro 30 secondi.</p>
+<p>Registro diagnostico rilevato:</p>
+<pre>{err_detail}</pre>
+<button class="btn" onclick="window.location.reload();">Ricarica Connessione</button>
+</div>
+</body>
+</html>"""
+            webview.create_window(
+                title="Anamnesix Enterprise - Diagnostica Avvio",
+                html=error_html,
+                width=1000,
+                height=650,
+                min_size=(800, 500),
+                text_select=True
+            )
         webview.start()
     except Exception:
         import webbrowser
-        webbrowser.open(url)
+        if is_ready:
+            webbrowser.open(f"http://{host}:{port}/index.html")
         server_thread.join()
 
 if __name__ == "__main__":
