@@ -20,7 +20,10 @@ DOCUMENTS_DIR = BASE_DIR / "documents"
 BACKUPS_DIR = BASE_DIR / "backups"
 CONFIG_DIR = BASE_DIR / "config"
 
+DATABASE_PATH = VAULT_DIR / "anamnesix.db"
+VECTOR_INDEX_PATH = VAULT_DIR / "vectors.bin"
 GLOBAL_CONFIG_PATH = CONFIG_DIR / "global_config.enc"
+CONFIG_FILE_PATH = CONFIG_DIR / "config.enc"
 PROFILES_METADATA_PATH = VAULT_DIR / "profiles_metadata.enc"
 SALT_FILE_PATH = CONFIG_DIR / "salt.bin"
 

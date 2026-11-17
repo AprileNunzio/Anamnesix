@@ -36,6 +36,8 @@ def build():
         "--hidden-import=cv2",
         "--hidden-import=pytesseract",
         "--hidden-import=fitz",
+        "--hidden-import=multipart",
+        "--hidden-import=python_multipart",
         f"--distpath={dist_dir}",
         f"--workpath={build_dir}",
         str(main_script)

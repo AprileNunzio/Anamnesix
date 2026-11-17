@@ -1,3 +1,4 @@
+import sys
 import socket
 import threading
 import uvicorn
@@ -46,7 +47,11 @@ app.include_router(export_router)
 app.include_router(updater_router)
 app.include_router(mcp_router)
 
-frontend_path = Path(__file__).resolve().parent.parent / "frontend"
+if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+    frontend_path = Path(sys._MEIPASS) / "frontend"
+else:
+    frontend_path = Path(__file__).resolve().parent.parent / "frontend"
+
 if frontend_path.exists():
     app.mount("/", StaticFiles(directory=str(frontend_path), html=True), name="frontend")
 
