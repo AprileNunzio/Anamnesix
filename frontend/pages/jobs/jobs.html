@@ -1,0 +1,61 @@
+<div class="page-view jobs-page">
+  <div class="page-header-row">
+    <div>
+      <h1 class="page-title">Deep AI Reasoning & Long-Running Clinical Analysis</h1>
+      <p class="page-subtitle">Motore di calcolo asincrono multi-variabile per analisi cliniche complesse che richiedono elaborazioni prolungate</p>
+    </div>
+    <div class="header-actions">
+      <button id="btn-launch-deep-job" class="btn btn-primary">🚀 Avvia Analisi Multi-Sistema Approfondita</button>
+    </div>
+  </div>
+
+  <div id="active-jobs-container" class="active-jobs-section" style="display:none;">
+    <div class="clinical-card" style="border-left: 4px solid var(--accent-blue);">
+      <div class="job-status-header">
+        <div>
+          <span class="badge-status-running">IN ELABORAZIONE</span>
+          <h3 id="current-job-title" style="margin-top:6px; font-size:var(--font-base);">Analisi Longitudinale Multi-Sistema in Corso</h3>
+        </div>
+        <button id="btn-cancel-current-job" class="btn btn-secondary" style="color:var(--status-danger);">Annulla Elaborazione</button>
+      </div>
+      <div class="progress-bar-container">
+        <div id="job-progress-fill" class="progress-bar-fill" style="width: 0%;"></div>
+      </div>
+      <div class="progress-status-row">
+        <span id="job-step-text" style="font-weight:600;">Inizializzazione job...</span>
+        <span id="job-percentage-text" style="font-family:var(--font-mono); font-weight:700;">0%</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="clinical-card">
+    <div class="card-header-clean">
+      <h3 class="card-title-clean">Registro Job di Calcolo e Perizie Deep Reasoning</h3>
+    </div>
+    <div class="table-container">
+      <table class="clinical-dense-table">
+        <thead>
+          <tr>
+            <th>Data Avvio</th>
+            <th>Tipologia Job</th>
+            <th>Stato</th>
+            <th>Avanzamento</th>
+            <th>Dettagli Ultimo Step</th>
+            <th>Azioni</th>
+          </tr>
+        </thead>
+        <tbody id="jobs-tbody">
+          <tr><td colspan="6" style="text-align:center; padding:18px;">Caricamento storico computazioni...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="job-result-card" class="clinical-card" style="display:none; margin-top:16px;">
+    <div class="card-header-clean" style="display:flex; justify-content:space-between; align-items:center;">
+      <h3 class="card-title-clean">Esito Perizia Clinica Deep Reasoning</h3>
+      <button id="btn-close-result" class="btn btn-secondary" style="padding:4px 10px;">Chiudi Visualizzazione</button>
+    </div>
+    <div id="job-result-content" class="report-markdown-preview"></div>
+  </div>
+</div>

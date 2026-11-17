@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Anamnesix - Cartella Clinica Intelligente</title>
+  <title>Anamnesix Enterprise - Cockpit Clinico Intelligente</title>
   <link rel="stylesheet" href="css/variables.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="components/navbar/navbar.css">
   <link rel="stylesheet" href="components/toast/toast.css">
   <link rel="stylesheet" href="components/family_selector/family_selector.css">
+  <link rel="stylesheet" href="components/visualizer_3d/visualizer_3d.css">
 </head>
 <body>
   <div id="app-container">
@@ -16,7 +17,7 @@
 
     <main id="main-content">
       <header id="top-header">
-        <h1 id="header-page-title" style="font-size:var(--font-lg); font-weight:700;">Panoramica Clinica</h1>
+        <h1 id="header-page-title" style="font-size:var(--font-lg); font-weight:700;">Cockpit Clinico</h1>
         <div id="family-selector-mount"></div>
       </header>
 
@@ -26,10 +27,12 @@
 
   <div id="toast-mount"></div>
 
+  <script src="js/three.min.js"></script>
   <script src="js/api_client.js"></script>
   <script src="components/toast/toast.js"></script>
   <script src="components/family_selector/family_selector.js"></script>
   <script src="components/navbar/navbar.js"></script>
+  <script src="components/visualizer_3d/visualizer_3d.js"></script>
   <script src="js/router.js"></script>
 
   <script>

@@ -1,0 +1,169 @@
+<div class="page-view vitals-page">
+  <div class="page-header-row">
+    <div>
+      <h1 class="page-title">Vitals, Attivita Fisica & Monitoraggio Notturno (Apnee)</h1>
+      <p class="page-subtitle">Rilevamento sensori wearable, frequenza cardiaca, pressione arteriosa, saturimetria e indice di apnea notturna (AHI)</p>
+    </div>
+    <div class="header-actions">
+      <button id="btn-open-vitals-modal" class="btn btn-primary">➕ Registra Parametri Vitali</button>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">PASSI GIORNALIERI</div>
+      <div class="kpi-value-row">
+        <span id="kpi-passi" class="kpi-number">--</span>
+        <span class="kpi-unit">passi</span>
+      </div>
+      <div id="kpi-passi-sub" class="kpi-sub">Target OMS: 10.000 passi</div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">FREQUENZA CARDIACA (BPM)</div>
+      <div class="kpi-value-row">
+        <span id="kpi-bpm" class="kpi-number">--</span>
+        <span class="kpi-unit">bpm riposo</span>
+      </div>
+      <div id="kpi-bpm-sub" class="kpi-sub">Min / Max: -- / --</div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">PRESSIONE ARTERIOSA</div>
+      <div class="kpi-value-row">
+        <span id="kpi-pressione" class="kpi-number">--/--</span>
+        <span class="kpi-unit">mmHg</span>
+      </div>
+      <div id="kpi-pressione-sub" class="kpi-badge badge-normal">Ottimale</div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">SATURAZIONE OSSIGENO (SPO2)</div>
+      <div class="kpi-value-row">
+        <span id="kpi-spo2" class="kpi-number">--</span>
+        <span class="kpi-unit">% media</span>
+      </div>
+      <div id="kpi-spo2-sub" class="kpi-sub">Minima notturna: --%</div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">INDICE APNEA NOTTURNA (AHI)</div>
+      <div class="kpi-value-row">
+        <span id="kpi-ahi" class="kpi-number">--</span>
+        <span class="kpi-unit">ev/ora</span>
+      </div>
+      <div id="kpi-ahi-sub" class="kpi-badge badge-normal">Fisiologico (&lt;5/h)</div>
+    </div>
+  </div>
+
+  <div class="clinical-card">
+    <div class="card-header-clean">
+      <h3 class="card-title-clean">Registro Parametri Vitali e Sonno Notturno</h3>
+    </div>
+    <div class="table-container">
+      <table class="clinical-dense-table">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Passi</th>
+            <th>BPM (Riposo/Max)</th>
+            <th>Pressione</th>
+            <th>SpO2 Media</th>
+            <th>Indice Apnea (AHI)</th>
+            <th>Episodi Apnea</th>
+            <th>Desat. (min)</th>
+            <th>Ore Sonno</th>
+            <th>HRV (ms)</th>
+            <th>Azioni</th>
+          </tr>
+        </thead>
+        <tbody id="vitals-tbody">
+          <tr><td colspan="11" style="text-align:center; padding:18px;">Caricamento parametri vitali...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="vitals-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-content-dense">
+      <div class="modal-header">
+        <h3>Inserimento Parametri Vitali & Monitoraggio Notturno</h3>
+        <button id="close-vitals-modal" class="btn-close">×</button>
+      </div>
+      <div class="modal-body-grid">
+        <div class="form-group">
+          <label>Data Rilevazione *</label>
+          <input type="date" id="input-vital-data" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label>Passi Giornalieri</label>
+          <input type="number" id="input-vital-passi" class="form-input" placeholder="es. 8500">
+        </div>
+        <div class="form-group">
+          <label>Distanza Percorsa (km)</label>
+          <input type="number" step="0.1" id="input-vital-distanza" class="form-input" placeholder="es. 6.2">
+        </div>
+        <div class="form-group">
+          <label>Calorie Attive (kcal)</label>
+          <input type="number" step="1" id="input-vital-calorie" class="form-input" placeholder="es. 480">
+        </div>
+        <div class="form-group">
+          <label>BPM a Riposo</label>
+          <input type="number" step="1" id="input-vital-bpm-riposo" class="form-input" placeholder="es. 62">
+        </div>
+        <div class="form-group">
+          <label>BPM Max Giornaliero</label>
+          <input type="number" step="1" id="input-vital-bpm-max" class="form-input" placeholder="es. 142">
+        </div>
+        <div class="form-group">
+          <label>Pressione Sistolica (Massima mmHg)</label>
+          <input type="number" step="1" id="input-vital-sistolica" class="form-input" placeholder="es. 120">
+        </div>
+        <div class="form-group">
+          <label>Pressione Diastolica (Minima mmHg)</label>
+          <input type="number" step="1" id="input-vital-diastolica" class="form-input" placeholder="es. 78">
+        </div>
+        <div class="form-group">
+          <label>Saturazione SpO2 Media (%)</label>
+          <input type="number" step="0.1" id="input-vital-spo2-media" class="form-input" placeholder="es. 98.0">
+        </div>
+        <div class="form-group">
+          <label>SpO2 Minima Notturna (%)</label>
+          <input type="number" step="0.1" id="input-vital-spo2-min" class="form-input" placeholder="es. 93.5">
+        </div>
+        <div class="form-group">
+          <label>Indice Apnee AHI (Episodi / ora)</label>
+          <input type="number" step="0.1" id="input-vital-ahi" class="form-input" placeholder="es. 2.4">
+        </div>
+        <div class="form-group">
+          <label>Episodi Totali di Apnea/Ipopnea</label>
+          <input type="number" step="1" id="input-vital-episodi-apnea" class="form-input" placeholder="es. 16">
+        </div>
+        <div class="form-group">
+          <label>Durata Totale Desaturazione (min)</label>
+          <input type="number" step="0.5" id="input-vital-durata-desat" class="form-input" placeholder="es. 4.5">
+        </div>
+        <div class="form-group">
+          <label>Ore di Sonno Totali</label>
+          <input type="number" step="0.1" id="input-vital-ore-sonno" class="form-input" placeholder="es. 7.5">
+        </div>
+        <div class="form-group">
+          <label>Variabilita Cardiaca HRV (ms)</label>
+          <input type="number" step="1" id="input-vital-hrv" class="form-input" placeholder="es. 55">
+        </div>
+        <div class="form-group">
+          <label>Frequenza Respiratoria (Atti/min)</label>
+          <input type="number" step="0.5" id="input-vital-frequenza-resp" class="form-input" placeholder="es. 14.5">
+        </div>
+        <div class="form-group full-width">
+          <label>Note e Condizioni di Rilevamento</label>
+          <input type="text" id="input-vital-note" class="form-input" placeholder="es. Polisonnografia domiciliare / Rilevamento Apple Watch / Garmin">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel-vitals" class="btn btn-secondary">Annulla</button>
+        <button id="btn-save-vitals" class="btn btn-primary">Salva Parametri Vitali</button>
+      </div>
+    </div>
+  </div>
+</div>

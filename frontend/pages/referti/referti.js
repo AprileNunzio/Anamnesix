@@ -3,6 +3,83 @@ window.init_referti_page = async function() {
   const fileInput = document.getElementById("file-input");
   const spinner = document.getElementById("upload-spinner");
   const tbody = document.getElementById("referti-table-body");
+  const manualModal = document.getElementById("manual-modal");
+  const openManualBtn = document.getElementById("btn-open-manual-modal");
+  const closeManualBtn = document.getElementById("close-manual-modal");
+  const cancelManualBtn = document.getElementById("btn-cancel-manual");
+  const saveManualBtn = document.getElementById("btn-save-manual");
+
+  const todayStr = new Date().toISOString().split("T")[0];
+  const manualDateInput = document.getElementById("manual-data");
+  if (manualDateInput) {
+    manualDateInput.value = todayStr;
+  }
+
+  function toggleManualModal(show) {
+    if (manualModal) {
+      manualModal.style.display = show ? "flex" : "none";
+    }
+  }
+
+  if (openManualBtn) {
+    openManualBtn.onclick = () => toggleManualModal(true);
+  }
+  if (closeManualBtn) {
+    closeManualBtn.onclick = () => toggleManualModal(false);
+  }
+  if (cancelManualBtn) {
+    cancelManualBtn.onclick = () => toggleManualModal(false);
+  }
+
+  if (saveManualBtn) {
+    saveManualBtn.onclick = async () => {
+      const dataVal = document.getElementById("manual-data").value;
+      const nomeVal = document.getElementById("manual-nome").value;
+      const unitaVal = document.getElementById("manual-unita").value;
+      const catVal = document.getElementById("manual-categoria").value;
+      const labVal = document.getElementById("manual-laboratorio").value || "Inserimento Manuale";
+      const numValStr = document.getElementById("manual-valore-num").value;
+      const txtVal = document.getElementById("manual-valore-txt").value || null;
+      const minValStr = document.getElementById("manual-range-min").value;
+      const maxValStr = document.getElementById("manual-range-max").value;
+      const noteVal = document.getElementById("manual-note").value || null;
+
+      if (!dataVal || !nomeVal || !unitaVal) {
+        window.showToast("Compila data, nome esame e unita di misura.", "warning");
+        return;
+      }
+
+      const numVal = numValStr !== "" ? parseFloat(numValStr) : null;
+      const minVal = minValStr !== "" ? parseFloat(minValStr) : null;
+      const maxVal = maxValStr !== "" ? parseFloat(maxValStr) : null;
+
+      const payload = {
+        data_prelievo: dataVal,
+        laboratorio: labVal,
+        categoria: catVal,
+        nome_esame_originale: nomeVal,
+        nome_standardizzato: nomeVal,
+        valore_numerico: numVal,
+        valore_testuale: txtVal,
+        unita_misura: unitaVal,
+        range_min: minVal,
+        range_max: maxVal,
+        note_referto: noteVal
+      };
+
+      try {
+        const res = await window.api.post("/api/referti/manual-entry", payload);
+        window.showToast("Parametro registrato con successo (" + res.stato_flag + ")!", "success");
+        toggleManualModal(false);
+        document.getElementById("manual-nome").value = "";
+        document.getElementById("manual-valore-num").value = "";
+        document.getElementById("manual-valore-txt").value = "";
+        loadReferti();
+      } catch (err) {
+        window.showToast("Errore inserimento: " + err.message, "error");
+      }
+    };
+  }
 
   const loadReferti = async () => {
     try {
@@ -44,6 +121,8 @@ window.init_referti_page = async function() {
 
           tbody.appendChild(tr);
         });
+      } else {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 24px; color: var(--text-muted);">Nessun referto presente per questo profilo.</td></tr>`;
       }
     } catch (err) {
       console.error(err);

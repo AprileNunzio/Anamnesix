@@ -16,7 +16,11 @@ from app.api.export_routes import router as export_router
 from app.api.updater_routes import router as updater_router
 from app.api.mcp_routes import router as mcp_router
 from app.api.fertility_routes import router as fertility_router
+from app.api.body_composition_routes import router as body_composition_router
+from app.api.health_metrics_routes import router as health_metrics_router
+from app.api.job_routes import router as job_router
 from app.config.settings import ensure_directories_exist
+from app.biomarkers.scanner import biomarker_auto_scanner
 
 def find_free_port() -> int:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -24,8 +28,8 @@ def find_free_port() -> int:
         return s.getsockname()[1]
 
 app = FastAPI(
-    title="Anamnesix API",
-    version="1.0.0",
+    title="Anamnesix API Enterprise",
+    version="1.1.0",
     docs_url="/docs",
     redoc_url="/redoc"
 )
@@ -48,6 +52,14 @@ app.include_router(export_router)
 app.include_router(updater_router)
 app.include_router(mcp_router)
 app.include_router(fertility_router)
+app.include_router(body_composition_router)
+app.include_router(health_metrics_router)
+app.include_router(job_router)
+
+@app.on_event("startup")
+def startup_event():
+    ensure_directories_exist()
+    biomarker_auto_scanner.scan_and_register_all()
 
 if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
     frontend_path = Path(sys._MEIPASS) / "frontend"
@@ -77,7 +89,7 @@ def launch_desktop() -> None:
     try:
         import webview
         webview.create_window(
-            title="Anamnesix - Cartella Clinica Intelligente",
+            title="Anamnesix Enterprise - Cartella Clinica Intelligente",
             url=url,
             width=1440,
             height=920,

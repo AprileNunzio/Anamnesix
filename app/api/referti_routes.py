@@ -1,15 +1,17 @@
 from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
 from typing import List, Optional
 from app.security.session import session_manager
-from app.database.models import RefertoRevisionPayload
+from app.database.models import RefertoRevisionPayload, ManualAnalitaCreate
 from app.database.repository import (
     list_all_referti,
     get_referto_by_id,
     delete_referto,
-    confirm_referto_revision
+    confirm_referto_revision,
+    insert_manual_analita
 )
 from app.ingestion.pipeline import ingestion_pipeline
 from app.profiles.profile_manager import profile_manager
+from app.biomarkers.scanner import biomarker_auto_scanner
 
 router = APIRouter(prefix="/api/referti", tags=["Referti Medici"])
 
@@ -63,6 +65,47 @@ def confirm_revision(payload: RefertoRevisionPayload):
         return {"status": "success", "messaggio": "Referto validato e salvato nel database."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Errore nel salvataggio della revisione: {str(e)}")
+
+@router.post("/manual-entry", dependencies=[Depends(verify_session)])
+def add_manual_analita(payload: ManualAnalitaCreate):
+    try:
+        eff_profile = payload.profile_id or profile_manager.get_active_profile_id()
+        algo = biomarker_auto_scanner.resolve_or_create_algorithm(
+            analyte_name=payload.nome_standardizzato or payload.nome_esame_originale,
+            category=payload.categoria,
+            default_unit=payload.unita_misura
+        )
+        result = algo.evaluate(
+            value=payload.valore_numerico,
+            text_value=payload.valore_testuale,
+            custom_min=payload.range_min,
+            custom_max=payload.range_max,
+            unit=payload.unita_misura
+        )
+        data_to_save = {
+            "categoria": payload.categoria,
+            "nome_esame_originale": payload.nome_esame_originale,
+            "nome_standardizzato": result.standard_name,
+            "valore_numerico": result.value_numeric,
+            "valore_testuale": result.value_text,
+            "unita_misura": result.unit or payload.unita_misura,
+            "range_min": result.range_min,
+            "range_max": result.range_max,
+            "stato_flag": result.status_flag,
+            "data_prelievo": payload.data_prelievo,
+            "laboratorio": payload.laboratorio,
+            "note_referto": payload.note_referto or result.clinical_evaluation
+        }
+        analita_id = insert_manual_analita(profile_id=eff_profile, analita=data_to_save)
+        return {
+            "status": "success",
+            "analita_id": analita_id,
+            "valutazione": result.clinical_evaluation,
+            "stato_flag": result.status_flag,
+            "messaggio": "Esame clinico registrato con successo."
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Errore inserimento manuale: {str(e)}")
 
 @router.delete("/{referto_id}", dependencies=[Depends(verify_session)])
 def remove_referto(referto_id: str):

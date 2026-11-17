@@ -1,0 +1,27 @@
+<div class="visualizer-3d-card">
+  <div class="visualizer-3d-header">
+    <div class="visualizer-title-wrap">
+      <span class="pulse-indicator"></span>
+      <h3 class="visualizer-title">Hologramma Clinico 3D & Biometria Spaziale</h3>
+    </div>
+    <div class="visualizer-controls">
+      <button class="btn-3d-mode active" data-mode="body">🧍 Corpo & Organi</button>
+      <button class="btn-3d-mode" data-mode="dna">🧬 Elica DNA & DFI</button>
+      <button class="btn-3d-mode" data-mode="cardio">🫀 Cardio-Metabolico</button>
+    </div>
+  </div>
+
+  <div class="visualizer-viewport-container">
+    <canvas id="canvas-3d-viewport"></canvas>
+    <div id="hud-organ-tooltip" class="hud-tooltip" style="display:none;">
+      <div id="hud-organ-title" class="hud-tooltip-title">Organo</div>
+      <div id="hud-organ-status" class="hud-tooltip-status">Stato: Normale</div>
+      <div id="hud-organ-details" class="hud-tooltip-details">Biomarcatori: --</div>
+    </div>
+    <div class="hud-legend-overlay">
+      <div class="hud-legend-item"><span class="legend-dot dot-green"></span> Regolare</div>
+      <div class="hud-legend-item"><span class="legend-dot dot-yellow"></span> Monitorare</div>
+      <div class="hud-legend-item"><span class="legend-dot dot-red"></span> Anomalia Critica</div>
+    </div>
+  </div>
+</div>

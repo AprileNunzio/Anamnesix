@@ -3,8 +3,19 @@ window.init_dashboard_page = async function() {
   const statusEl = document.getElementById("dash-health-status");
   const systemsGrid = document.getElementById("systems-grid");
   const anomaliesTbody = document.getElementById("anomalies-table-body");
+  const visualizerMount = document.getElementById("visualizer-3d-mount");
 
   try {
+    if (visualizerMount) {
+      const vRes = await fetch("components/visualizer_3d/visualizer_3d.html");
+      if (vRes.ok) {
+        visualizerMount.innerHTML = await vRes.text();
+        if (window.Clinical3DVisualizer) {
+          window.dashboardVisualizer = new window.Clinical3DVisualizer("canvas-3d-viewport", "hud-organ-tooltip");
+        }
+      }
+    }
+
     const scores = await window.api.get("/api/analytics/health-score");
     scoreEl.textContent = scores.overall_score;
     statusEl.textContent = scores.stato_sintetico;
@@ -30,6 +41,10 @@ window.init_dashboard_page = async function() {
     }
 
     const anomalies = await window.api.get("/api/analytics/radar-anomalies");
+    if (window.dashboardVisualizer && anomalies) {
+      window.dashboardVisualizer.setAnomalies(anomalies);
+    }
+
     if (anomalies && anomalies.length > 0) {
       anomaliesTbody.innerHTML = "";
       anomalies.forEach((a, idx) => {
