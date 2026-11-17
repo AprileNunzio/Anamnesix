@@ -1,7 +1,7 @@
 import uuid
 import datetime
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from app.config.settings import get_profile_docs_dir
 from app.security.cipher import encrypt_bytes
 from app.security.session import session_manager
@@ -21,23 +21,31 @@ class IngestionPipeline:
         self,
         file_bytes: bytes,
         filename: str,
-        profile_id: str | None = None
+        profile_id: Optional[str] = None,
+        progress_callback: Optional[Any] = None
     ) -> Dict[str, Any]:
         if not profile_id:
             profile_id = profile_manager.get_active_profile_id()
+
+        if progress_callback:
+            await progress_callback(15, "Inizializzazione sicurezza e cifratura archivio")
 
         key = session_manager.get_key()
         file_id = str(uuid.uuid4())
         suffix = Path(filename).suffix.lower()
 
         docs_dir = get_profile_docs_dir(profile_id)
+        docs_dir.mkdir(parents=True, exist_ok=True)
         enc_file_path = docs_dir / f"{file_id}.enc"
 
         encrypted_file = encrypt_bytes(file_bytes, key)
         enc_file_path.write_bytes(encrypted_file)
 
+        if progress_callback:
+            await progress_callback(35, "Estrazione layer testo e rendering ottico pagine")
+
         extracted_text = ""
-        first_page_image: bytes | None = None
+        first_page_image: Optional[bytes] = None
         mime_type = "application/pdf" if suffix == ".pdf" else "image/png"
 
         if suffix == ".pdf":
@@ -45,15 +53,21 @@ class IngestionPipeline:
             if page_images:
                 first_page_image = page_images[0]
         else:
-            first_page_image = file_bytes
+            first_page_image = ocr_engine.prepare_image_bytes_for_vision(file_bytes)
             extracted_text = ocr_engine.extract_text_from_bytes(file_bytes)
             mime_type = "image/jpeg" if suffix in [".jpg", ".jpeg"] else "image/png"
+
+        if progress_callback:
+            await progress_callback(60, "Analisi euristica e visione clinica multimodale AI")
 
         raw_ai_data = await ai_router.extract_clinical_data(
             document_text=extracted_text,
             image_bytes=first_page_image,
             mime_type=mime_type
         )
+
+        if progress_callback:
+            await progress_callback(85, "Normalizzazione e validazione range fisiologici")
 
         today_iso = datetime.date.today().isoformat()
         data_prelievo = raw_ai_data.get("data_prelievo") or today_iso
@@ -79,6 +93,9 @@ class IngestionPipeline:
 
         referto_id = create_referto(referto_create)
         save_analiti_for_referto(referto_id, normalized_analiti)
+
+        if progress_callback:
+            await progress_callback(100, "Referto salvato e pronto per la revisione")
 
         import base64
         preview_b64 = base64.b64encode(first_page_image).decode("utf-8") if first_page_image else ""

@@ -40,6 +40,33 @@ async def upload_document(file: UploadFile = File(...)):
     active_profile = profile_manager.get_active_profile_id()
 
     try:
+        import base64
+        from app.jobs.job_manager import ai_job_manager
+        b64_str = base64.b64encode(content).decode("utf-8")
+        job_id = ai_job_manager.launch_job(
+            job_type="INGESTIONE_REFERTO",
+            profile_id=active_profile,
+            parameters={"filename": filename, "file_b64": b64_str}
+        )
+        return {
+            "status": "processing",
+            "job_id": job_id,
+            "filename": filename,
+            "messaggio": "Referto preso in carico in background. Puoi continuare a navigare."
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Errore durante l'avvio dell'elaborazione: {str(e)}")
+
+@router.post("/upload-sync", dependencies=[Depends(verify_session)])
+async def upload_document_sync(file: UploadFile = File(...)):
+    content = await file.read()
+    if not content:
+        raise HTTPException(status_code=400, detail="File vuoto.")
+
+    filename = file.filename or "referto_scansionato.pdf"
+    active_profile = profile_manager.get_active_profile_id()
+
+    try:
         result = await ingestion_pipeline.process_document(
             file_bytes=content,
             filename=filename,

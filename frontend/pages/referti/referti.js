@@ -129,20 +129,30 @@ window.init_referti_page = async function() {
     }
   };
 
+  window.refreshRefertiTable = loadReferti;
+
   const handleUpload = async (file) => {
     if (!file) return;
     const formData = new FormData();
     formData.append("file", file);
 
-    spinner.style.display = "flex";
     try {
       const res = await window.api.post("/api/referti/upload", formData);
-      window.showToast("Documento analizzato! Procedi con la revisione fianco a fianco.", "success");
-      window.router.navigate("human_in_loop", { uploadResult: res.data });
+      if (res.job_id) {
+        window.showToast("Referto preso in carico! L'analisi procede in background. Puoi navigare liberamente.", "info");
+        if (window.taskTracker) {
+          window.taskTracker.track(res.job_id, file.name, (resultData) => {
+            if (resultData && resultData.referto_id) {
+              window.router.navigate("human_in_loop", { uploadResult: resultData });
+            }
+          });
+        }
+      } else if (res.data) {
+        window.showToast("Documento analizzato! Procedi con la revisione fianco a fianco.", "success");
+        window.router.navigate("human_in_loop", { uploadResult: res.data });
+      }
     } catch (err) {
       window.showToast(err.message, "error");
-    } finally {
-      spinner.style.display = "none";
     }
   };
 

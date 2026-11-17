@@ -102,19 +102,29 @@ class AIRouter:
         if self.default_provider == "gemini":
             if self.pii_scrubbing_enabled and text_to_process:
                 text_to_process, pii_map = pii_scrubber.scrub(text_to_process)
-            prompt = f"Analizza il seguente referto medico ed estrai tutti gli analiti:\n\n{text_to_process}"
+            prompt = f"Analizza attentamente questa scansione o referto clinico ed estrai tutti gli analiti in formato JSON:\n\n{text_to_process}"
             raw_response = await gemini_provider.generate_content(
                 model=self.gemini_model,
                 prompt=prompt,
                 system_instruction=CLINICAL_EXTRACTION_SYSTEM_PROMPT,
-                image_bytes=image_bytes if not text_to_process else None,
-                mime_type=mime_type,
+                image_bytes=image_bytes,
+                mime_type=mime_type or "image/png",
                 format_json=True
             )
         else:
-            has_text = bool(text_to_process and len(text_to_process.strip()) > 15)
+            vision_model = await self.find_installed_vision_model() if image_bytes else None
+            has_text = bool(text_to_process and len(text_to_process.strip()) > 25)
 
-            if has_text:
+            if vision_model and image_bytes:
+                import base64
+                b64 = base64.b64encode(image_bytes).decode("utf-8")
+                raw_response = await ollama_provider.generate_with_image(
+                    model=vision_model,
+                    prompt="Estrai tutti gli analiti, valori numerici, unita di misura e range di riferimento da questa immagine in formato JSON strutturato.",
+                    image_base64=b64,
+                    system_prompt=CLINICAL_EXTRACTION_SYSTEM_PROMPT
+                )
+            elif has_text:
                 messages = [
                     {"role": "system", "content": CLINICAL_EXTRACTION_SYSTEM_PROMPT},
                     {"role": "user", "content": f"Referto:\n{text_to_process}"}
@@ -124,37 +134,28 @@ class AIRouter:
                     messages=messages,
                     format_json=True
                 )
-            elif image_bytes and mime_type:
-                vision_model = await self.find_installed_vision_model()
-                if vision_model:
-                    import base64
-                    b64 = base64.b64encode(image_bytes).decode("utf-8")
-                    raw_response = await ollama_provider.generate_with_image(
-                        model=vision_model,
-                        prompt="Estrai tutti gli analiti clinici da questa immagine in formato JSON strutturato.",
-                        image_base64=b64,
-                        system_prompt=CLINICAL_EXTRACTION_SYSTEM_PROMPT
+            elif image_bytes:
+                from app.ingestion.ocr_engine import ocr_engine
+                ocr_text = ocr_engine.extract_text_from_bytes(image_bytes)
+                if ocr_text and len(ocr_text.strip()) > 10:
+                    messages = [
+                        {"role": "system", "content": CLINICAL_EXTRACTION_SYSTEM_PROMPT},
+                        {"role": "user", "content": f"Referto:\n{ocr_text}"}
+                    ]
+                    raw_response = await ollama_provider.chat(
+                        model=self.ollama_model,
+                        messages=messages,
+                        format_json=True
                     )
                 else:
-                    from app.ingestion.ocr_engine import ocr_engine
-                    ocr_text = ocr_engine.extract_text_from_bytes(image_bytes)
-                    if ocr_text and len(ocr_text.strip()) > 10:
-                        messages = [
-                            {"role": "system", "content": CLINICAL_EXTRACTION_SYSTEM_PROMPT},
-                            {"role": "user", "content": f"Referto:\n{ocr_text}"}
-                        ]
-                        raw_response = await ollama_provider.chat(
-                            model=self.ollama_model,
-                            messages=messages,
-                            format_json=True
-                        )
-                    else:
-                        models = await ollama_provider.list_models()
-                        names = [m.get("name", "") for m in models]
-                        raise RuntimeError(
-                            f"Impossibile leggere il documento visivo. Nessun modello Vision rilevato in Ollama (modelli disponibili: {names}). "
-                            f"Installa un modello compatibile come 'ollama pull llama3.2-vision' oppure imposta Gemini in Impostazioni."
-                        )
+                    models = await ollama_provider.list_models()
+                    names = [m.get("name", "") for m in models]
+                    raise RuntimeError(
+                        f"Il documento caricato e una scansione/foto priva di testo digitale vettoriale. "
+                        f"Per consentire all'AI la lettura visiva di foto da cellulare, configura la tua chiave Google Gemini in Impostazioni "
+                        f"(consigliata, gratuita e istantanea) oppure installa un modello visivo locale digitando nel terminale 'ollama pull llama3.2-vision'. "
+                        f"Modelli locali attuali: {names}."
+                    )
             else:
                 raise RuntimeError("Nessun testo o immagine estratta dal documento caricato.")
 

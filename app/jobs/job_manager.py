@@ -80,6 +80,40 @@ class AIJobManager:
 
     async def _execute_job_pipeline(self, job_id: str, job_type: str, profile_id: str, parameters: Dict[str, Any]) -> None:
         try:
+            if job_type == "INGESTIONE_REFERTO":
+                import base64
+                from app.ingestion.pipeline import ingestion_pipeline
+
+                file_b64 = parameters.get("file_b64", "")
+                file_bytes = base64.b64decode(file_b64) if file_b64 else b""
+                filename = parameters.get("filename", "referto.pdf")
+
+                async def progress_cb(prog: int, step_desc: str):
+                    update_ai_job(
+                        job_id=job_id,
+                        status="IN_ESECUZIONE",
+                        progress=prog,
+                        current_step=step_desc,
+                        profile_id=profile_id
+                    )
+
+                res = await ingestion_pipeline.process_document(
+                    file_bytes=file_bytes,
+                    filename=filename,
+                    profile_id=profile_id,
+                    progress_callback=progress_cb
+                )
+
+                update_ai_job(
+                    job_id=job_id,
+                    status="COMPLETATO",
+                    progress=100,
+                    current_step="Referto analizzato e salvato con successo",
+                    result_json=json.dumps(res, ensure_ascii=False),
+                    profile_id=profile_id
+                )
+                return
+
             update_ai_job(
                 job_id=job_id,
                 status="IN_ESECUZIONE",

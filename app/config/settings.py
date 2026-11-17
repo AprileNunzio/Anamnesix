@@ -29,7 +29,7 @@ SALT_FILE_PATH = CONFIG_DIR / "salt.bin"
 
 DEFAULT_HOST = "127.0.0.1"
 APP_NAME = "Anamnesix"
-APP_VERSION = "1.1.2"
+APP_VERSION = "1.1.3"
 GITHUB_REPO = "AprileNunzio/Anamnesix"
 
 def ensure_directories_exist() -> None:
